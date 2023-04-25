@@ -38,7 +38,7 @@
         <circle cx="0" cy="0" r="1%" fill="red" />
 
         <g>
-            {#each scan.points as { strength, distance, invalid, warn }, i (i)}
+            {#each scan.points as distance, i (i)}
                 {@const angle = (i * Math.PI) / 180}
                 {@const x = Math.cos(angle) * distance}
                 {@const y = Math.sin(angle) * distance}

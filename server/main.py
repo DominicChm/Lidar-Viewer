@@ -2,7 +2,7 @@ from threading import Thread
 from aiohttp import web
 import socketio
 import asyncio
-import xv11_parse
+import rplidar_parse
 
 sio = socketio.AsyncServer()
 app = web.Application()
@@ -21,27 +21,17 @@ class LidarNamespace(socketio.AsyncNamespace):
 
     def read_lidar_thread(self, el):
         print("Starting lidar thread")
-        l = xv11_parse.Lidar("COM9")
+        l = rplidar_parse.Lidar("COM8")
 
         scan = {
             "rpm": 0,
-            "points": [{
-                "distance": 100,
-                "strength": 100,
-                "invalid": False,
-                "warn": False,
-            } for _ in range(360)]
+            "points": [100 for _ in range(360)]
         }
 
-        for (ang, rpm, meas) in l.iter_measurements():
-            p = scan["points"][ang]
-            p["distance"] = meas.distance
-            p["strength"] = meas.strength
-            p["invalid"] = meas.invalid
-            p["warn"] = meas.strength_warn
+        for angle, distance in l:
+            p = scan["points"][angle] = distance
 
-            if ang == 359:
-                scan["rpm"] = rpm
+            if angle == 359:
                 t = asyncio.run_coroutine_threadsafe(self.emit("scan", scan, namespace="/lidar"), el)
                 t.result(timeout=3)                
 

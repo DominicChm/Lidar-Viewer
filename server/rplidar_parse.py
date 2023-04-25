@@ -168,10 +168,14 @@ class Lidar:
         else:
              raise RuntimeError("Unsupported scan type")
 
+    # Many, many ugly hacks.
+    # I really wish python had c++ bitfields :(
+    # Or... like... the rplidar protocol wasn't dumb >:(
     def iter_express_packets(self):
         idx = 0
         a = array.array('B', [0] * 0x54)
         start_angle_last = None
+        last_angle = 0
         while True:
             # Parse start bytes, restarting if there's a mismatch.
             s1 = int.from_bytes(self.ser.read(), "little")
@@ -196,7 +200,6 @@ class Lidar:
             is_start = start_angle & 0x8000 != 0
             start_angle = (start_angle & 0x7FFF) / 64.0
             
-            print("!!!!!", start_angle)
             if(is_start):
                 print("Express scan Start")
 
@@ -208,11 +211,17 @@ class Lidar:
                 d1 >>= 2
                 d2 >>= 2
 
-                th1 = parse_angle(start_angle, start_angle_last or 0, 2*i, thoff_1)
-                th2 = parse_angle(start_angle, start_angle_last or 0, 2*i + 1, thoff_2 )
+                th1 = int(parse_angle(start_angle, start_angle_last or 0, 2*i, thoff_1)) % 360
+                th2 = int(parse_angle(start_angle, start_angle_last or 0, 2*i + 1, thoff_2 )) % 360
 
-                yield int(th1) % 360, d1
-                yield int(th2) % 360, d2
+                if th1 != last_angle:
+                    yield th1, d1
+                    last_angle = th1
+
+                if th2 != last_angle:
+                    yield th2, d2
+                    last_angle = th2
+
             
             start_angle_last = start_angle
         pass
