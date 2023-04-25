@@ -5,6 +5,10 @@
 		},
 		{
 			"path": "web"
+		},
+		{
+			"name": "test-ui",
+			"path": "../../PlatformIO/Projects/test-ui"
 		}
 	],
 	"settings": {}
