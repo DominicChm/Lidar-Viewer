@@ -17,7 +17,7 @@
 
     // https://socket.io/docs/v4/client-initialization/
     onMount(() => {
-        let connectingSock = io("/lidar", { path: "/api" });
+        let connectingSock = io("/lidar", { path: "/api", transports: ["websocket"], upgrade: true });
         connectingSock.on("connect", () => {
             sock = connectingSock;
         });
@@ -33,10 +33,7 @@
 
 {#if sock}
     connected
-    <svg
-        viewBox={`${-radius} ${-radius} ${2 * radius} ${2 * radius}`}
-        class="w-full aspect-square object-contain bg-green-500 -scale-y-100"
-    >
+    <svg viewBox={`${-radius} ${-radius} ${2 * radius} ${2 * radius}`} class="w-full aspect-square object-contain bg-green-500 -scale-y-100">
         <circle cx="0" cy="0" r="1%" fill="red" />
         {#if scan}
             <g>
@@ -47,7 +44,7 @@
 
                     <circle cx={x} cy={y} r=".25%" />
                     {#if annotations && annotations.highlights.includes(Math.abs(angle))}
-                        <line x1={0} y1={0} x2={x} y2={y} stroke="blue" stroke-width=".25%"></line>
+                        <line x1={0} y1={0} x2={x} y2={y} stroke="blue" stroke-width=".25%" />
                     {/if}
                 {/each}
             </g>
@@ -58,20 +55,13 @@
                 {#each annotations.lines as line, i (i)}
                     {@const [x1, y1, x2, y2] = line}
 
-                    <line
-                        {x1}
-                        {y1}
-                        {x2}
-                        {y2}
-                        stroke="black"
-                        stroke-width=".2%"
-                    />
+                    <line {x1} {y1} {x2} {y2} stroke="black" stroke-width=".2%" />
                 {/each}
 
                 {#each annotations.points as point, i (i)}
                     {@const [x, y] = point}
 
-                    <circle {x} {y} r=".25%" fill="blue"/>
+                    <circle {x} {y} r=".25%" fill="blue" />
                 {/each}
             </g>
         {/if}

@@ -2,7 +2,7 @@ import socketio
 from aiohttp import web
 from aio import el
 
-sio = socketio.AsyncServer()
+sio = socketio.AsyncServer(async_mode='aiohttp')
 app = web.Application()
 
 async def index(request):

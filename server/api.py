@@ -3,7 +3,7 @@ import copy
 import queue
 from threading import Thread
 from typing import Sequence
-import rplidar_parse
+from hls_parse import Lidar
 from web import sio
 from aio import el
 
@@ -23,7 +23,7 @@ class API:
 
 
     def _read_lidar_thread(self):
-        l = rplidar_parse.Lidar()
+        l = Lidar()
 
         scan = {
             "rpm": 0,
